@@ -1,8 +1,6 @@
 const jwt=require("jsonwebtoken");
 const jwtSecret="asadasdasdads";
 
-const DB=require("../database/objeto")
-
 function auth(req,res,next){
   const authToken=req.headers["authorization"];
   if(authToken!=undefined){

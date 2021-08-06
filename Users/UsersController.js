@@ -20,8 +20,8 @@ router.post("/authentication",(req,res)=>{
       if(correct){
         jwt.sign({id:user.id,email:user.email},jwtSecret,{expiresIn:"48h"},(err,token)=>{
           if(err){
-            res.status(400);
-            res.json({err:"Falha interna"});
+            res.status(404);
+            res.json({err:"O processo de geração do token falhou."});
           }else{
             res.status(200);
             res.json({token:token})
@@ -35,49 +35,10 @@ router.post("/authentication",(req,res)=>{
       res.status(401);
       res.json({err:"Este e-mail não está cadastrado na base de dados"})
     }
-  }).catch((err)=>{
+  }).catch(()=>{
     res.status(404);
-    res.json({"erro": err})
+    res.json({err:"O processo de busca no banco de dados falhou."})
   })
 })
 
 module.exports=router;
-
-/*
-//Banco de dados falso
-const DB=require("../database/objeto")
-
-////////////////////USERS
-router.post("/auth",(req,res)=>{
-  var {email,password}=req.body;
-
-  if(email!= undefined){
-    var user=DB.users.find(u=>u.email==email);
-
-    if(user!= undefined){
-      if(user.password==password){
-        jwt.sign({id:user.id,email:user.email},jwtSecret,{expiresIn:"48h"},(err,token)=>{
-          if(err){
-            res.status(400);
-            res.json({err:"Falha interna"});
-          }else{
-            res.status(200);
-            res.json({token:token})
-          }
-        })
-
-      }else{
-        res.status(401);
-        res.json({err:"Credenciais inválidas"})
-      }
-    }else{
-      res.status(404);
-      res.json({err:"O E-mail enviado não existe na base de dados"})
-    }
-
-  }else{
-    res.status(400);
-    res.json({err:"O E-mail enviado é inválido"})
-  }
-})
-*/

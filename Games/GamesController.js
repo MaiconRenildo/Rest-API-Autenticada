@@ -11,9 +11,10 @@ const auth=require("../middlewares/auth");
 router.get('/games',auth,(req,res)=>{
   Games.findAll({}).then(games=>{
     res.statusCode=200;
-    res.json({games});
+    res.json(games);
   }).catch(()=>{
-    res.sendStatus(400);
+    res.status(404);
+    res.json({err:"O processo de busca no banco de dados falhou."})
   })
 });
 
@@ -22,7 +23,8 @@ router.get('/game/:id',auth,(req,res)=>{
   let id=req.params.id;
 
   if(isNaN(id)){
-    res.sendStatus(400);
+    res.status(400);
+    res.json({err:"Id inválido."})
   }else{
     Games.findOne({
       where:{
@@ -30,13 +32,15 @@ router.get('/game/:id',auth,(req,res)=>{
       }
     }).then(game=>{
       if(game==null){
-        res.sendStatus(404);
+        res.status(404);
+        res.json({err:"Game não encontrado"})
       }else{
         res.statusCode=200;
         res.json(game)
       }
     }).catch(()=>{
-      res.sendStatus(404);
+      res.status(404);
+      res.json({err:"O processo de busca no banco de dados falhou."})
     })
   }
 });
@@ -45,16 +49,24 @@ router.get('/game/:id',auth,(req,res)=>{
 router.delete("/game/:id",auth,(req,res)=>{
   let id=req.params.id
   if(isNaN(id)){
-    res.sendStatus(400);
+    res.status(400);
+    res.json({err:"Id inválido."})
   }else{
     Games.destroy({
       where:{
         id:id
       }
-    }).then(()=>{
-      res.sendStatus(200);
+    }).then((game)=>{
+      if(game==0){
+        res.status(404);
+        res.json({err:"Game não encontrado"})
+      }else{
+        res.status(200);
+        res.json({res:"OK!"})
+      }
     }).catch(()=>{
-      res.sendStatus(400);
+      res.status(404);
+      res.json({err:"O processo de busca no banco de dados falhou."})
     })
   }
 });
@@ -66,18 +78,22 @@ router.post('/game',auth,(req,res)=>{
   price=price.replace(',','.');
 
   if(name==undefined || price==undefined){
-    res.sendStatus(404)
+    res.status(400);
+    res.json({err:"Parâmetros não preenchidos."})
   }else{
     if((name.trim()=="" || price.trim()=="") || isNaN(price)==true ){
-      res.sendStatus(404)
+      res.status(400);
+      res.json({err:"Parâmetros não preenchidos corretamente."})
     }else{
       Games.create({
         name:name,
         price:price
       }).then(()=>{
-        res.sendStatus(201);
+        res.status(201);
+        res.json({res:"OK!"})
       }).catch(()=>{
-        res.sendStatus(400)
+        res.status(404);
+        res.json({err:"O processo de busca no banco de dados falhou."})
       })
     }
   }
@@ -87,7 +103,8 @@ router.post('/game',auth,(req,res)=>{
 router.put("/game/:id",auth,(req,res)=>{
   let id=req.params.id
   if(isNaN(id)){
-    res.sendStatus(404);
+    res.status(400);
+    res.json({err:"Id inválido."})
   }else{
     let newName=req.body.name;
     let newPrice=req.body.price;
@@ -95,23 +112,32 @@ router.put("/game/:id",auth,(req,res)=>{
     let object={}
 
     if(newPrice==undefined && newName==undefined){
-      res.sendStatus(404);
+      res.status(400);
+      res.json({err:"Parâmetros não preenchidos."})
     }else{
       if( (newPrice!=undefined && newPrice.trim()!="") && (isNaN(newPrice)!=true) ) object.price=newPrice;
       if(newName!=undefined && newName.trim()!="") object.name=newName;
     }
 
     if((Object.entries(object).length==0)){
-      res.sendStatus(404);
+      res.status(400);
+      res.json({err:"Parâmetros não preenchidos corretamente."})
     }else{
       Games.update(object,{
         where:{
           id:id
         }
-      }).then(()=>{
-        res.sendStatus(200);
+      }).then((games)=>{
+        if(games==0){
+          res.status(404);
+          res.json({err:"Game não encontrado"})
+        }else{
+          res.status(200);
+          res.json({res:"OK!"})
+        }
       }).catch(()=>{
-        res.sendStatus(404);
+        res.status(404);
+        res.json({err:"O processo de busca no banco de dados falhou."})
       })
     } 
   }
