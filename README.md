@@ -1,5 +1,5 @@
 # Rest API com autenticação
-Esta API utilizada para tal e tal...
+Simples Rest API de Games desenvolvida usando Node.js e com autenticação para uso das rotas.
 ## Endpoints
 
 ## Rota de Autenticação
